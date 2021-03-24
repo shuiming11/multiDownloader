@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <Button
+        android:id="@+id/btn_cancel_all"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@+id/btn_pause_resume_all"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="10dp"
+        android:text="cancelAll"/>
+
+    <Button
+        android:id="@+id/btn_pause_resume_all"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="10dp"
+        android:text="PAUSEALL"/>
+    <ListView
+        android:id="@+id/listview"
+        android:layout_below="@+id/btn_pause_resume_all"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+</RelativeLayout>
