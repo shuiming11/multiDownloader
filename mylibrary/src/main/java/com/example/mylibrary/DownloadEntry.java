@@ -25,7 +25,7 @@ public class DownloadEntry implements Serializable {
 
     public boolean isSuportRange;
 
-    public HashMap<Integer,Long> ranges;
+    public volatile HashMap<Integer,Long> ranges;
 
     public int percent;
 

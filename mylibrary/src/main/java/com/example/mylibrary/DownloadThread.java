@@ -11,6 +11,8 @@ import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.Locale;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -32,6 +34,7 @@ public class DownloadThread implements Runnable {
     private boolean isCanceled;
     private volatile boolean isPaused;
     private String fileName;
+    int downlaodLenth = 0;
 
     public DownloadThread(String url,int startPos, int endPos,DownloadListener downloadListener, int index,String fileName) {
         this.url = url;
@@ -55,7 +58,8 @@ public class DownloadThread implements Runnable {
             String range = String.format(Locale.CHINESE, "bytes=%d-%d", startPos,endPos);
             OkHttpClient client = new OkHttpClient();
             Request request = new Request.Builder()
-                    .url(url)
+                    .url(url).
+                     addHeader("Connection","close")
                     .header("range", range)
                     .build();
             // 使用OkHttp请求服务器
@@ -67,22 +71,40 @@ public class DownloadThread implements Runnable {
             System.out.println("文件大小：" + body.contentLength());
             accessFile.seek(startPos);
             InputStream inputStream = body.byteStream();
-            byte[] bytes = new byte[2048];
+            FileChannel channelOut = accessFile.getChannel();
+            // 内存映射，直接使用RandomAccessFile，是用其seek方法指定下载的起始位置，使用缓存下载，在这里指定下载位置。
+            MappedByteBuffer mappedBuffer = channelOut.map(FileChannel.MapMode.READ_WRITE, startPos, body.contentLength());
+            byte[] buffer = new byte[4096];
             int len = 0;
-            try {
-                len = inputStream.read(bytes);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            while (len != -1) {
-                if(isPaused){
+            while (((startPos + downlaodLenth) != endPos) || ((len = inputStream.read(buffer)) != -1)) {
+                if(isPaused || isCanceled){
                     break;
                 }
-                accessFile.write(bytes, 0, len);
-                System.out.println("已下载字节：" + file.length()+Thread.currentThread().getName());
+                len = inputStream.read(buffer);
+                mappedBuffer.put(buffer, 0, len);
                 downloadListener.processChange(index,len);
-                len = inputStream.read(bytes);
+                downlaodLenth = len;
             }
+
+
+
+//            byte[] bytes = new byte[3076];
+//            int len = 0;
+//            try {
+//                len = inputStream.read(bytes);
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//            while ( (len = inputStream.read(bytes)) != -1) {
+//                if(isPaused){
+//                    break;
+//                }
+//                accessFile.write(bytes, 0, len);
+//                System.out.println("已下载字节：" + accessFile.length()+Thread.currentThread().getName());
+//
+//                downloadListener.processChange(index,len);
+//
+//            }
             System.out.println("文件下载完毕：");
         } catch (Exception e) {
             e.printStackTrace();
@@ -100,7 +122,7 @@ public class DownloadThread implements Runnable {
 
 
     public void cancel() {
-        isPaused = true;
+        isCanceled = true;
         File file = new File(fileName);
         if(file.exists()){
             file.delete();

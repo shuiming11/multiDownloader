@@ -186,7 +186,7 @@ public class DownlaodService extends Service {
         if(downloadTask != null){
             downloadTask.cancel();
         }else {
-            if(entry.status == pause || entry.status == idle ){
+            if(entry.status == pause || entry.status == idle || entry.status == completed){
                 entry.status = cancel;
                 EventBus.getDefault().post(entry);
             }

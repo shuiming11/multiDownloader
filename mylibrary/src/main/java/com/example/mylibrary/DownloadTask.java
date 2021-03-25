@@ -20,6 +20,7 @@ public class DownloadTask implements ConnectThread.OnConnectListener, DownloadTh
     private boolean isCancel;
     private ConnectThread connectThread;
     private ArrayList<DownloadThread> mDowmloadingTasks = new ArrayList<>();
+    long lastTime = 0l;
   //  private DownloadThread downloadThread;
 
     public DownloadTask(DownloadEntry entry, Handler handler, ExecutorService executorService, Context context){
@@ -105,11 +106,11 @@ public class DownloadTask implements ConnectThread.OnConnectListener, DownloadTh
             startPos = (int) (i * block + entry.ranges.get(i));
             if(i == Constants.DOWNLOAD_MAX_THREAD - 1){
                 endPos = entry.totalLenth ;
-                System.out.println("end------->"+endPos);
+                System.out.println("start------->"+startPos);
 
             }else {
-                endPos = (i +1 ) * block - 1;
-                System.out.println("end------->"+endPos);
+                endPos = (i +1 ) * block-1;
+                System.out.println("start------->"+startPos);
             }
             if(startPos < endPos){
                 DownloadThread downloadThread = new DownloadThread(entry.url,startPos,endPos,this,i,entry.filename);
@@ -135,7 +136,7 @@ public class DownloadTask implements ConnectThread.OnConnectListener, DownloadTh
     @Override
     public synchronized void processChange(int index,long process) {
         //int range = entry.ranges.get(index)+process;
-        entry.ranges.put(index,process);
+        entry.ranges.put(index,entry.ranges.get(index)+process);
         entry.currentLength += process;
         int percent = (int) (entry.currentLength *100l / entry.totalLenth);
         entry.percent = percent;
@@ -144,15 +145,20 @@ public class DownloadTask implements ConnectThread.OnConnectListener, DownloadTh
             entry.percent = 100;
             entry.status = DownloadEntry.DownlaodStatus.completed;
              Message msg = mHandler.obtainMessage();
-
-        msg.obj = entry;
-       mHandler.sendMessage(msg);
+             msg.obj = entry;
+             mHandler.sendMessage(msg);
+        }else {
+            if(System.currentTimeMillis() - lastTime >1000){
+                EventBus.getDefault().post(entry);
+                lastTime = System.currentTimeMillis();
+            }
         }
 
 
       //  mHandler.postDelayed()
        // if(process * 100 / entry.totalLenth>1)
-        EventBus.getDefault().post(entry);
+
+
         DataChanger.getInstance(cotext).saveEntries(entry);
        // Message msg = mHandler.obtainMessage();
 

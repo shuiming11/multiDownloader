@@ -154,6 +154,8 @@ public class ListActivity extends AppCompatActivity {
                 viewHolder.mDownloanBtn.setText("下载中");
             }else if(entry.status == DownloadEntry.DownlaodStatus.waiting){
                 viewHolder.mDownloanBtn.setText("等待");
+            }else if(entry.status == DownloadEntry.DownlaodStatus.completed){
+                viewHolder.mDownloanBtn.setText("已完成");
             }
             viewHolder.mDownloanBtn.setOnTouchListener(new View.OnTouchListener() {
                 @Override
