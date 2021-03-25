@@ -67,7 +67,7 @@ public class DownloadThread implements Runnable {
             System.out.println("文件大小：" + body.contentLength());
             accessFile.seek(startPos);
             InputStream inputStream = body.byteStream();
-            byte[] bytes = new byte[1024];
+            byte[] bytes = new byte[2048];
             int len = 0;
             try {
                 len = inputStream.read(bytes);
