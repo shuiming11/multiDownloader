@@ -2,7 +2,8 @@
 多线程多任务下载框架
 
 效果如下：
-https://github.com/shuiming11/multiDownloader/blob/main/app.gif
+![image](https://github.com/shuiming11/multiDownloader/blob/main/app.gif )   
+
 
 框架依赖了okhttp,gson和eventbus
 
