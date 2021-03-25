@@ -208,7 +208,7 @@ public class ListActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        mDownloadManager.pauseAll();
+
     }
 
 
@@ -235,6 +235,7 @@ public class ListActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         EventBus.getDefault().unregister(this);
+        mDownloadManager.pauseAll();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
